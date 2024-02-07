@@ -1,0 +1,26 @@
+<div class="modal" tabindex="-1" id="settingsModal" data-nosnippet>
+    <div class="modal-dialog d-flex flex-column min-vh-100 justify-content-center align-items-center">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-check ps-0">
+                    <label class="form-check-label" for="preferenceCopyFullLink"><b>Use Full Links</b></label>
+                    <input class="form-check-input float-end" type="checkbox" name="preferenceCopyFullLink" id="preferenceCopyFullLink">
+                </div>
+                <div class="form-check ps-0 <% if (site.mode === "standalone") { %> d-none <% } %>">
+                    <label class="form-check-label" for="preferenceCenterMapAsteroids"><b>Center Map on Asteroid Field</b></label>
+                    <input class="form-check-input float-end" type="checkbox" name="preferenceCopyFullLink" id="preferenceCenterMapAsteroids">
+                </div>
+                <div style="display: flex; align-items: center; overflow: hidden hidden; margin-bottom: 1%;">
+                    <label for="preferenceTheme" style="width: -moz-available;width: -webkit-fill-available;width: fill-available;"><b>Theme</b></label>
+                    <select id="preferenceTheme" class="form-select-sm" style="max-width: 40%;"></select>
+                </div>
+                <div id="customThemeSelection" style="display: flex; align-items: center; overflow: auto hidden">
+                    <label style="width: -moz-available;width: -webkit-fill-available;width: fill-available;" for="useCustomTheme"><b>Custom Theme </b></label>
+                    <select class="form-select-sm" style="max-width:30%" name="useCustomTheme" id="useCustomTheme"></select>
+                    <button class="btn btn-danger" style="padding-top:0;padding-bottom:0;margin-left:1%;" id="customThemeEditButton">Edit</button>
+                    <button class="btn btn-danger" style="padding-top:0;padding-bottom:0;margin-left:1%;" id="customThemeDeleteButton">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
