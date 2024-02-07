@@ -286,6 +286,12 @@ let ECPIcons = {
         "active": true,
         "decoration": {"unicode": 56, "fill": "hsl(50,100%,50%)", "stroke": "hsl(0,50%,30%)"}
     },
+    "blank": {
+        "name": "Blank",
+        "id": "blank",
+        "active": true,
+        "decoration": { "unicode": 56, "fill": "hsla(50,100%,50%,0)", "stroke": "hsl(0,50%,30%,0)" }
+    },
     "pirate": {
         "name": "Pirate",
         "id": "pirate",
@@ -341,7 +347,6 @@ let ECPIcons = {
     "gamepedia": {"name": "Gamepedia", "id": "gamepedia", "active": true, "url": "gamepedia.png"},
     "discord": {"name": "Discord", "id": "discord", "active": true, "url": "discord.png"},
     "medic": {"name": "Medic", "id": "medic", "active": true, "url": "medic.jpg"},
-    "blank": {"name": "Blank", "id": "blank", "active": true},
     "seasonal": {"name": "Seasonal", "id": "seasonal", "active": true, "url": "seasonal.png"},
     "halloween_2021": {
         "name": "Seasonal - Halloween 2021",
