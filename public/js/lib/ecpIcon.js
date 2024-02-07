@@ -320,6 +320,12 @@ let ECPIcons = {
         "active": true,
         "decoration": {"unicode": 82, "fill": "#111", "stroke": "#FFF"}
     },
+    "blank": {
+        "name": "Blank",
+        "id": "blank",
+        "active": true,
+        "decoration": {"unicode": 88, "fill": "hsla(0,50%,100%,0", "stroke": "hsla(0,50%,100%,0"}
+    },
     "alliance": {
         "name": "Rebel Alliance",
         "id": "alliance",
@@ -341,7 +347,6 @@ let ECPIcons = {
     "gamepedia": {"name": "Gamepedia", "id": "gamepedia", "active": true, "url": "gamepedia.png"},
     "discord": {"name": "Discord", "id": "discord", "active": true, "url": "discord.png"},
     "medic": {"name": "Medic", "id": "medic", "active": true, "url": "medic.jpg"},
-    "blank": {"name": "Blank", "id": "blank", "active": true},
     "seasonal": {"name": "Seasonal", "id": "seasonal", "active": true, "url": "seasonal.png"},
     "halloween_2021": {
         "name": "Seasonal - Halloween 2021",
