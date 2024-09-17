@@ -13,12 +13,12 @@ class SystemReportManager {
         let system = systemFetcher();
 
         let maybePrefetchedInfo = self.prefetchedInfo[`${system.id}@${system.address}`];
-        if (!maybePrefetchedInfo || (!maybePrefetchedInfo.inProgress && Date.now()-maybePrefetchedInfo.timestamp > 10000)) {
+        if (!maybePrefetchedInfo || (!maybePrefetchedInfo.inProgress && Date.now() - maybePrefetchedInfo.timestamp > 10000)) {
             self.prefetchedInfo[`${system.id}@${system.address}`] = {
                 inProgress: true,
                 timestamp: 0,
-                data: new Promise(async(resolve) => {
-                    fetch(`${window.siteConfig["static-api-provider"]}status/${system.id}@${system.address}`).then(async(response) => {
+                data: new Promise(async (resolve) => {
+                    fetch(`${window.siteConfig["static-api-provider"]}status/${system.id}@${system.address}`).then(async (response) => {
                         let info = await response.json();
                         self.prefetchedInfo[`${system.id}@${system.address}`].inProgress = false;
                         self.prefetchedInfo[`${system.id}@${system.address}`].timestamp = Date.now();
@@ -101,7 +101,7 @@ class SystemReportManager {
                         let teamECPCount = [];
                         for (let team of info.mode.teams) {
                             teamECPCount.push(`${team.ecpCount} ${team.color}`);
-                            teamScoreCount.push(`${Math.floor(team.totalScore/1000)}k ${team.color}`);
+                            teamScoreCount.push(`${Math.floor(team.totalScore / 1000)}k ${team.color}`);
                         }
 
                         document.getElementById("SR_TeamModeRequired").style.display = "";
@@ -144,4 +144,3 @@ class SystemReportManager {
         navigator.clipboard.writeText(text).then();
     }
 }
-
