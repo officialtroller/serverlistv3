@@ -253,7 +253,7 @@ class Spectator {
                 if (player.profile.custom) {
                     doImageFilter = true;
 
-                    if (player.profile.custom.badge !== "_0x27G5C") {
+                    if (player.profile.custom.badge !== "blank") {
                         (() => {
                             return new Promise(async(resolve) => {
                                 let badgeURI = await getECPIcon(player.profile.custom);
