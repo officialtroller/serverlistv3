@@ -3,9 +3,10 @@
 class Spectator {
     constructor(systemId) {
         const self = this;
+        console.log(self);
 
         self.destroyed = false;
-        self.socket = new WebSocket(window.siteConfig["live-api-provider"]);
+        self.socket = new WebSocket(window.siteConfig['live-api-provider']);
         self.modeInfo = undefined;
         // Partially filled array of player objects located at the index of their ID
         self.players = [];
@@ -19,9 +20,9 @@ class Spectator {
         // timestamp of the last time we ticked player positions
         self.lastTickTimeStamp = null;
 
-        self.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--spectate-background-color");
-        self.asteroidsColor = getComputedStyle(document.documentElement).getPropertyValue("--spectate-asteroids-color");
-        self.spectateOutlineColor = getComputedStyle(document.documentElement).getPropertyValue("--spectate-player-highlighting-color");
+        self.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--spectate-background-color');
+        self.asteroidsColor = getComputedStyle(document.documentElement).getPropertyValue('--spectate-asteroids-color');
+        self.spectateOutlineColor = getComputedStyle(document.documentElement).getPropertyValue('--spectate-player-highlighting-color');
 
         // Set placeholder text on the UI and add event listeners to cleanly
         // disconnect the socket if the panel is closed
@@ -38,12 +39,12 @@ class Spectator {
 
     set spectatingID(val) {
         if (this.#spectatingID === val) return;
-        let Old = document.querySelector("#live-ship-viewer-" + this.#spectatingID);
-        let New = document.querySelector("#live-ship-viewer-" + val);
+        let Old = document.querySelector('#live-ship-viewer-' + this.#spectatingID);
+        let New = document.querySelector('#live-ship-viewer-' + val);
 
-        if (Old) Old.setAttribute("class", "player-view-box");
+        if (Old) Old.setAttribute('class', 'player-view-box');
 
-        if (New) New.setAttribute("class", "player-view-box highlighted");
+        if (New) New.setAttribute('class', 'player-view-box highlighted');
 
         this.#spectatingID = val;
     }
@@ -51,16 +52,16 @@ class Spectator {
     prepareUI() {
         const self = this;
         // Temporary placeholder text while system info loads
-        document.getElementById("spectatorModalTitle").innerText = "Spectating: ???";
+        document.getElementById('spectatorModalTitle').innerText = 'Spectating: ???';
 
         // Set binding to destroy the Spectator object
         // if the pop-up window closes
         let destroyOnModalHide = () => {
             self.destroy();
-            document.getElementById("spectatorModal").removeEventListener("hide.bs.modal", destroyOnModalHide);
-        }
+            document.getElementById('spectatorModal').removeEventListener('hide.bs.modal', destroyOnModalHide);
+        };
 
-        document.getElementById("spectatorModal").addEventListener("hide.bs.modal", destroyOnModalHide);
+        document.getElementById('spectatorModal').addEventListener('hide.bs.modal', destroyOnModalHide);
 
         // Make sure there can only be one active spectator object active
         if (window.activeSpectator && window.activeSpectator !== self) {
@@ -70,7 +71,7 @@ class Spectator {
 
         // prepare canvas event
 
-        let canvas = document.querySelector("#spectatorCanvas");
+        let canvas = document.querySelector('#spectatorCanvas');
 
         canvas.onmousemove = function (e) {
             if (self.players == null) return;
@@ -80,7 +81,8 @@ class Spectator {
 
             let lastDist = Infinity;
 
-            let hasTarget = false, oldID = self.spectatingID;
+            let hasTarget = false,
+                oldID = self.spectatingID;
 
             for (let player of self.players) {
                 if (!player || !player.renderInfo) continue;
@@ -104,36 +106,37 @@ class Spectator {
         canvas.onmouseout = function () {
             self.spectatingID = null;
         };
-
     }
 
     bindWebSocket(systemId) {
         const self = this;
 
-        self.socket.addEventListener("open", () => {
-            self.socket.send(JSON.stringify({
-                name: "subscribe",
-                data: {
-                    id: systemId
-                }
-            }));
+        self.socket.addEventListener('open', () => {
+            self.socket.send(
+                JSON.stringify({
+                    name: 'subscribe',
+                    data: {
+                        id: systemId,
+                    },
+                })
+            );
         });
 
-        self.socket.addEventListener("message", (evt) => {
+        self.socket.addEventListener('message', evt => {
             let message = evt.data;
-            if (typeof message === "string" && message.startsWith("{")) {
+            if (typeof message === 'string' && message.startsWith('{')) {
                 let json = JSON.parse(message);
-                if (json.name === "mode_info") {
+                if (json.name === 'mode_info') {
                     self.handleModeInfo(json.data);
-                } else if (json.name === "player_name") {
+                } else if (json.name === 'player_name') {
                     if (self.players[json.data.id]) self.players[json.data.id].profile = json.data;
                 }
-            } else if (typeof message === "object") {
+            } else if (typeof message === 'object') {
                 self.handleBinaryMessage(message).then();
             }
         });
 
-        self.socket.addEventListener("close", () => {
+        self.socket.addEventListener('close', () => {
             self.destroyed = true;
         });
     }
@@ -146,7 +149,7 @@ class Spectator {
 
         self.compileAsteroidsMapImage();
 
-        document.getElementById("spectatorModalTitle").innerText = `Spectating: ${self.modeInfo.name}`;
+        document.getElementById('spectatorModalTitle').innerText = `Spectating: ${self.modeInfo.name}`;
 
         self.render();
 
@@ -163,7 +166,6 @@ class Spectator {
         let deltaT = now - self.lastTickTimeStamp;
 
         while (deltaT > 0) {
-
             while (self.positionLogs.length > 1 && self.activePosition.timestamp > self.positionLogs[0].timestamp) self.positionLogs.shift();
 
             let currentPositions = self.activePosition.positions;
@@ -194,7 +196,7 @@ class Spectator {
 
             self.activePosition.timestamp += timeToTick;
             if (refreshActivePositionPlayers) {
-                self.activePosition = {...self.positionLogs[0]};
+                self.activePosition = { ...self.positionLogs[0] };
                 self.positionLogs.shift();
             }
         }
@@ -213,7 +215,7 @@ class Spectator {
             // if message is ship info
             let positionData = {
                 timestamp: Date.now(),
-                positions: []
+                positions: [],
             };
             for (let offset = 1; offset <= view.byteLength - 15; offset += 15) {
                 let id = view.getUint8(offset);
@@ -223,27 +225,29 @@ class Spectator {
                     y: view.getFloat32(offset + 5, true),
                     score: view.getUint32(offset + 9, true),
                     alive: (view.getUint16(offset + 13, true) & (1 << 15)) !== 0,
-                    ship: view.getUint16(offset + 13, true) & ~(1 << 15)
+                    ship: view.getUint16(offset + 13, true) & ~(1 << 15),
                 };
-                positionData.positions[id] = {...decodedStatus};
+                positionData.positions[id] = { ...decodedStatus };
                 // if we've received position on a player whose name we don't know yet
                 if (!self.players[id]) {
                     self.players[id] = decodedStatus;
                     // send request to get player's name
-                    self.socket.send(JSON.stringify({
-                        name: "get_name",
-                        data: {
-                            id: id
-                        }
-                    }));
+                    self.socket.send(
+                        JSON.stringify({
+                            name: 'get_name',
+                            data: {
+                                id: id,
+                            },
+                        })
+                    );
                     // give the player a generic name for now
                     self.players[id].profile = {
                         custom: null,
                         friendly: 0,
                         hue: 0,
                         id: id,
-                        player_name: "???"
-                    }
+                        player_name: '???',
+                    };
                 } else {
                     // Otherwise, update the player's status
                     Object.assign(self.players[id], decodedStatus);
@@ -267,10 +271,10 @@ class Spectator {
 
             for (let offset = 1; offset <= view.byteLength - 5; offset += 5) {
                 teams[i] = {
-                    level: view.getUint8(offset) & 0x0F,
-                    open: (view.getUint8(offset) & 0xF0) !== 0,
-                    crystals: view.getUint32(offset + 1, true)
-                }
+                    level: view.getUint8(offset) & 0x0f,
+                    open: (view.getUint8(offset) & 0xf0) !== 0,
+                    crystals: view.getUint32(offset + 1, true),
+                };
                 i++;
             }
             self.teams = teams;
@@ -286,7 +290,7 @@ class Spectator {
             setTimeout(() => {
                 self.renderScores();
             }, 1000);
-        })
+        });
     }
 
     render() {
@@ -307,15 +311,15 @@ class Spectator {
 
         // Clear spectate row
 
-        let spectateRow = document.getElementById("spectateRow");
+        let spectateRow = document.getElementById('spectateRow');
         let scrollAmounts = [];
 
-        while(spectateRow.childElementCount > 1) {
+        while (spectateRow.childElementCount > 1) {
             scrollAmounts[scrollAmounts.length] = spectateRow.lastChild.scrollTop;
             spectateRow.removeChild(spectateRow.lastChild);
         }
 
-        let colClass = "col analysis-col px-1";
+        let colClass = 'col analysis-col px-1';
         /*if (self.modeInfo.mode.friendly_colors === 2) {
             colClass = "col-sm-3 analysis-col px-1";
         }*/
@@ -329,23 +333,23 @@ class Spectator {
             teamIndex++;
             if (!self.teams[teamIndex]) continue;
 
-            let column = document.createElement("div");
+            let column = document.createElement('div');
             column.className = colClass;
-            column.style.overflowY = "scroll";
-            column.style.overflowX = "hidden";
-            column.style.height = document.getElementById("spectatorCanvas").style.height;
+            column.style.overflowY = 'scroll';
+            column.style.overflowX = 'hidden';
+            column.style.height = document.getElementById('spectatorCanvas').style.height;
 
-            let title = document.createElement("h5");
+            let title = document.createElement('h5');
             if (self.teams[teamIndex].open) {
                 title.innerHTML = `${translateColor(team.hue)} <i class="bi bi-unlock-fill"></i>`;
             } else {
                 title.innerHTML = `${translateColor(team.hue)} <i class="bi bi-lock-fill"></i>`;
             }
-            title.className = "text-center m-0";
+            title.className = 'text-center m-0';
             column.appendChild(title);
 
-            let hr = document.createElement("hr");
-            hr.className = "m-1";
+            let hr = document.createElement('hr');
+            hr.className = 'm-1';
             column.appendChild(hr);
 
             spectateRow.appendChild(column);
@@ -363,141 +367,103 @@ class Spectator {
             for (let player of players) totalScore += player.score;
             for (let player of players) if (player.profile.custom) ecpCount++;
 
-            column.insertAdjacentHTML("beforeend", `
+            column.insertAdjacentHTML(
+                'beforeend',
+                `
                 <span><b class="float-start">ECP Count</b> <p class="float-end m-0">${ecpCount}</p><br></span>
                 <span><b class="float-start">Level</b> <p class="float-end m-0">${self.teams[teamIndex].level}</p><br></span>
                 <span><b class="float-start">Gems</b> <p class="float-end m-0">${self.teams[teamIndex].crystals}</p><br></span>
                 <span><b class="float-start">Score</b> <p class="float-end m-0">${totalScore}</p><br></span>
                 <hr class="m-1">
-            `);
+            `
+            );
 
             // Determine mod
-            let shipFolder = "vanilla";
+            let shipFolder = 'vanilla';
             let displayShips = false;
             let firstShip;
 
             if (self.modeInfo.mode.unlisted) {
                 displayShips = false;
             } else {
-                if (self.modeInfo.mode.id === "modding") firstShip = JSON.parse(self.modeInfo.mode.ships[0]);
+                if (self.modeInfo.mode.id === 'modding') firstShip = JSON.parse(self.modeInfo.mode.ships[0]);
 
-                if (self.modeInfo.mode.id === "team") {
+                if (self.modeInfo.mode.id === 'team') {
                     displayShips = true;
-                } else if (firstShip.name === "U-Sniper Mk 2") {
-                    shipFolder = "useries";
+                } else if (firstShip.name === 'U-Sniper Mk 2') {
+                    shipFolder = 'useries';
                     displayShips = true;
-                } else if (firstShip.name === "Snail") {
-                    shipFolder = "nautic";
+                } else if (firstShip.name === 'Snail') {
+                    shipFolder = 'nautic';
                     displayShips = true;
-                } else if (firstShip.name === "Fly_V2") {
-                    shipFolder = "intrusion";
+                } else if (firstShip.name === 'Fly_V2') {
+                    shipFolder = 'intrusion';
                     displayShips = true;
                 }
             }
 
-            players.sort((a, b) => {return b.score - a.score});
+            players.sort((a, b) => {
+                return b.score - a.score;
+            });
             for (let player of players) {
-                let col = document.createElement("div");
+                let col = document.createElement('div');
 
                 let playerID = player.id;
 
-                col.id = "live-ship-viewer-" + playerID;
+                col.id = 'live-ship-viewer-' + playerID;
 
                 if (playerID === self.spectatingID) {
-                    col.setAttribute("class", "player-view-box highlighted");
+                    col.setAttribute('class', 'player-view-box highlighted');
                 } else {
-                    col.setAttribute("class", "player-view-box");
+                    col.setAttribute('class', 'player-view-box');
                 }
                 let doImageFilter = false;
 
-                let firstSpan = document.createElement("span");
+                let firstSpan = document.createElement('span');
 
                 if (player.profile.custom) {
                     doImageFilter = true;
 
-                    if (player.profile.custom.badge !== "blank") {
+                    if (player.profile.custom.badge !== '_0x27G5C') {
                         (() => {
-                            return new Promise(async(resolve) => {
+                            return new Promise(async resolve => {
                                 let badgeURI = await getECPIcon(player.profile.custom);
                                 firstSpan.innerHTML = `<img src=${badgeURI} style="height: 0.65rem; width:1.3rem; margin-bottom: 0.1rem;"> ` + firstSpan.innerHTML;
-                            })
+                            });
                         })().then();
                     }
-
                 }
 
-                let image = "";
-
-                const getShipStr = (ship, shipFolder) => {
-                    const vanillaTranslation = {
-                        101:"\uf100",
-                        201:"\uf101",
-                        202:"\uf102",
-                        301:"\uf103",
-                        302:"\uf104",
-                        303:"\uf105",
-                        304:"\uf106",
-                        401:"\uf107",
-                        402:"\uf108",
-                        403:"\uf109",
-                        404:"\uf10a",
-                        405:"\uf10b",
-                        406:"\uf10c",
-                        501:"\uf10d",
-                        502:"\uf10e",
-                        503:"\uf10f",
-                        504:"\uf110",
-                        505:"\uf111",
-                        506:"\uf112",
-                        507:"\uf113",
-                        508:"\uf114",
-                        601:"\uf115",
-                        602:"\uf116",
-                        603:"\uf117",
-                        604:"\uf118",
-                        605:"\uf119",
-                        606:"\uf11a",
-                        607:"\uf11b",
-                        608:"\uf11c",
-                        609:"\uf11d",
-                        701:"\uf11e",
-                        702:"\uf11f",
-                        703:"\uf120",
-                        704:"\uf121",
-                    }
-                    if (shipFolder === "vanilla") {
-                        return vanillaTranslation[ship];
-                    } else {
-                        return String.fromCharCode(ship);
-                    }
-                }
-
+                let image = '';
                 if (displayShips && doImageFilter) {
-                    image = `<span class="ship-icon ship-icon-${shipFolder}" style="color: hsl(${player.profile.hue}, 100%, 40%)">${getShipStr(player.ship, shipFolder)}</span>`;
+                    image = `<span class="ship-icon ship-icon-${shipFolder}" style="color: hsl(${player.profile.hue}, 100%, 40%)">${String.fromCharCode(player.ship)}</span>`;
                 } else if (displayShips) {
-                    image = `<span class="ship-icon ship-icon-${shipFolder}">${getShipStr(player.ship, shipFolder)}</span>`;
+                    image = `<span class="ship-icon ship-icon-${shipFolder}">${String.fromCharCode(player.ship)}</span>`;
                 } else if (!displayShips && doImageFilter) {
                 }
 
-                firstSpan.setAttribute("style", "font-size: 0.65rem; overflow: hidden; white-space: nowrap; color: inherit; cursor: inherit;");
-                firstSpan.setAttribute("class", "ship-name");
+                firstSpan.setAttribute('style', 'font-size: 0.65rem; overflow: hidden; white-space: nowrap; color: inherit; cursor: inherit;');
+                firstSpan.setAttribute('class', 'ship-name');
                 //firstSpan.innerHTML += image;
                 firstSpan.innerHTML += `&nbsp`;
-                firstSpan.innerHTML += player.profile.player_name.replace("<", "&lt").replace(">", "&gt");
+                firstSpan.innerHTML += player.profile.player_name.replace('<', '&lt').replace('>', '&gt');
                 col.appendChild(firstSpan);
 
-                col.insertAdjacentHTML("beforeend", `
+                col.insertAdjacentHTML(
+                    'beforeend',
+                    `
                     <span class="ship-score" style="font-size: 0.65rem; color: inherit; cursor: inherit;">
                         ${player.score}
                         ${image}
                     </span>
-                `);
+                `
+                );
 
-                col.addEventListener("mouseover", function (e) {
+                col.addEventListener('mouseover', function (e) {
                     self.spectatingID = playerID;
                 });
 
-                col.addEventListener("mouseout", function (e) {
+                col.addEventListener('mouseout', function (e) {
                     if (self.spectatingID === playerID) self.spectatingID = null;
                 });
 
@@ -515,8 +481,8 @@ class Spectator {
 
         if (!self.modeInfo) return;
 
-        let canvas = document.getElementById("spectatorCanvas");
-        let ctx = canvas.getContext("2d");
+        let canvas = document.getElementById('spectatorCanvas');
+        let ctx = canvas.getContext('2d');
 
         ctx.fillStyle = self.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -524,11 +490,7 @@ class Spectator {
         let size = self.modeInfo.mode.map_size;
 
         if (!self.generatedMap) {
-            self.generatedMap = self.modeInfo.mode.custom_map ||
-                getMap(
-                    self.modeInfo.seed, size,
-                    self.modeInfo.mode.id === "modding" ? self.modeInfo.mode.root_mode : self.modeInfo.mode.id
-                );
+            self.generatedMap = self.modeInfo.mode.custom_map || getMap(self.modeInfo.seed, size, self.modeInfo.mode.id === 'modding' ? self.modeInfo.mode.root_mode : self.modeInfo.mode.id);
         }
 
         let map = self.generatedMap;
@@ -539,15 +501,15 @@ class Spectator {
         // Render asteroids
 
         let y = 0;
-        for (let line of map.split("\n")) {
+        for (let line of map.split('\n')) {
             let x = 0;
             for (let asteroid of line) {
                 let cx = x * cellWidth + maxRadius;
                 let cy = y * cellWidth + maxRadius;
 
                 if (preferencesManager.preferences.centerMapOnAsteroids) {
-                    cx = (cx + (canvas.width / 2)) % canvas.width;
-                    cy = (cy + (canvas.width / 2)) % canvas.width;
+                    cx = (cx + canvas.width / 2) % canvas.width;
+                    cy = (cy + canvas.width / 2) % canvas.width;
                 }
                 let cr = (Number(asteroid) / 10) * maxRadius;
 
@@ -572,8 +534,8 @@ class Spectator {
     renderMap() {
         const self = this;
 
-        let canvas = document.getElementById("spectatorCanvas");
-        let ctx = canvas.getContext("2d");
+        let canvas = document.getElementById('spectatorCanvas');
+        let ctx = canvas.getContext('2d');
 
         ctx.fillStyle = self.backgroundColor;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -588,17 +550,17 @@ class Spectator {
         let V = 0.8;
         for (let team of self.modeInfo.mode.teams) {
             let phase = team.station.phase;
-            let radius = (Math.sqrt(2)/2) * canvas.width / 2;
-            let steps = (self.modeInfo.servertime + (Date.now() - self.modeInfo.obtainedAt)) / 1000 * 60;
+            let radius = ((Math.sqrt(2) / 2) * canvas.width) / 2;
+            let steps = ((self.modeInfo.servertime + (Date.now() - self.modeInfo.obtained)) / 1000) * 60;
             // let theta = ((360/216000 * steps) / 180 * Math.PI) + phase;
-            let theta = steps / 60 / 3600 % 1 * Math.PI * 2;
+            let theta = ((steps / 60 / 3600) % 1) * Math.PI * 2;
             let x = radius * Math.cos(theta + phase);
             let y = -(radius * Math.sin(theta + phase));
 
             let rgb = hsv2rgb(team.hue, S, V);
-            ctx.strokeStyle = `rgb(${rgb[0]*255}, ${rgb[1]*255}, ${rgb[2]*255})`;
+            ctx.strokeStyle = `rgb(${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255})`;
             ctx.strokeWidth = 1;
-            ctx.fillStyle = `rgb(${rgb[0]*255}, ${rgb[1]*255}, ${rgb[2]*255})`;
+            ctx.fillStyle = `rgb(${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255})`;
             ctx.beginPath();
             // ctx.rect(canvas.width / 2 + x - 4 * maxRadius, canvas.width / 2 + y - 4 * maxRadius, 8 * maxRadius, 8 * maxRadius);
             // ctx.arc(canvas.width / 2 + x, canvas.height / 2 + y, 2 * maxRadius, 0, 2*Math.PI);
@@ -607,42 +569,42 @@ class Spectator {
             let cy = canvas.width / 2 + y - 4 * maxRadius;
 
             if (preferencesManager.preferences.centerMapOnAsteroids) {
-                cx = (cx + (canvas.width / 2)) % canvas.width;
-                cy = (cy + (canvas.width / 2)) % canvas.width;
+                cx = (cx + canvas.width / 2) % canvas.width;
+                cy = (cy + canvas.width / 2) % canvas.width;
             }
 
             roundRect(ctx, cx, cy, 8 * maxRadius, 8 * maxRadius, maxRadius, true, false);
             ctx.fill();
 
-            ctx.globalCompositeOperation = "destination-out";
-            ctx.fillStyle = "black";
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'black';
             ctx.beginPath();
-            ctx.arc(cx+5.75*maxRadius, cy+2.25*maxRadius, 1.1*maxRadius, 0, 2*Math.PI);
+            ctx.arc(cx + 5.75 * maxRadius, cy + 2.25 * maxRadius, 1.1 * maxRadius, 0, 2 * Math.PI);
             ctx.fill();
             ctx.closePath();
             ctx.beginPath();
-            ctx.arc(cx+5.75*maxRadius, cy+5.75*maxRadius, 1.1*maxRadius, 0, 2*Math.PI);
+            ctx.arc(cx + 5.75 * maxRadius, cy + 5.75 * maxRadius, 1.1 * maxRadius, 0, 2 * Math.PI);
             ctx.fill();
             ctx.closePath();
             ctx.beginPath();
-            ctx.arc(cx+2.25*maxRadius, cy+4*maxRadius, 1.1*maxRadius, 0, 2*Math.PI);
+            ctx.arc(cx + 2.25 * maxRadius, cy + 4 * maxRadius, 1.1 * maxRadius, 0, 2 * Math.PI);
             ctx.fill();
             ctx.closePath();
-            ctx.lineWidth = maxRadius/2;
+            ctx.lineWidth = maxRadius / 2;
             ctx.beginPath();
-            ctx.moveTo(cx+5.75*maxRadius, cy+2.25*maxRadius);
-            ctx.lineTo(cx+2.25*maxRadius, cy+4*maxRadius);
-            ctx.lineTo(cx+5.75*maxRadius, cy+5.75*maxRadius);
+            ctx.moveTo(cx + 5.75 * maxRadius, cy + 2.25 * maxRadius);
+            ctx.lineTo(cx + 2.25 * maxRadius, cy + 4 * maxRadius);
+            ctx.lineTo(cx + 5.75 * maxRadius, cy + 5.75 * maxRadius);
             ctx.stroke();
             ctx.closePath();
-            ctx.globalCompositeOperation = "source-over";
+            ctx.globalCompositeOperation = 'source-over';
         }
 
         // Render players
 
-        let adjust = function(x, size) {
-            return ((x + size / 2) % size) - (size / 2);
-        }
+        let adjust = function (x, size) {
+            return ((x + size / 2) % size) - size / 2;
+        };
 
         if (!self.activePosition) return;
 
@@ -666,24 +628,24 @@ class Spectator {
 
     static resizeCanvas() {
         // Resize canvas element itself
-        let canvas = document.getElementById("spectatorCanvas");
+        let canvas = document.getElementById('spectatorCanvas');
 
-        canvas.style.width = (canvas.parentElement.clientWidth) + "px";
-        canvas.style.height = (canvas.parentElement.clientWidth) + "px";
-        canvas.setAttribute("width", String(canvas.parentElement.clientWidth*window.devicePixelRatio));
-        canvas.setAttribute("height", String(canvas.parentElement.clientWidth*window.devicePixelRatio));
+        canvas.style.width = canvas.parentElement.clientWidth + 'px';
+        canvas.style.height = canvas.parentElement.clientWidth + 'px';
+        canvas.setAttribute('width', String(canvas.parentElement.clientWidth * window.devicePixelRatio));
+        canvas.setAttribute('height', String(canvas.parentElement.clientWidth * window.devicePixelRatio));
 
         if (window.activeSpectator) window.activeSpectator.compileAsteroidsMapImage();
     }
 
     static show() {
-        let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("spectatorModal"));
+        let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('spectatorModal'));
         modal.show();
         Spectator.resizeCanvas();
     }
 
     static hide() {
-        let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("spectatorModal"));
+        let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('spectatorModal'));
         modal.hide();
     }
 
@@ -695,7 +657,7 @@ class Spectator {
     }
 }
 
-window.addEventListener("resize", () => {
+window.addEventListener('resize', () => {
     Spectator.resizeCanvas();
 
     if (window.activeSpectator) {
