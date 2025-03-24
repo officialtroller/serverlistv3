@@ -3,7 +3,6 @@
 class Spectator {
     constructor(systemId) {
         const self = this;
-        console.log(self);
 
         self.destroyed = false;
         self.socket = new WebSocket(window.siteConfig['live-api-provider']);
